@@ -1,22 +1,68 @@
 import webbrowser
 import os
 import sys
-from tkinter import *
+from tkinter import Tk,Button,ttk,Text,Menu
 
-def generate_html(surname, name, job, email):
+def format_phone_number(num:str):
+    num.replace(".","")
+    num.replace("+33","0")
+    output = num
+    return output
+
+def generate_html(surname:str, name:str, job:str, email:str, tel:str):
+    name = name.upper()
+    num = format_phone_number(tel)
+    tel = format_phone_number(tel)
+    num = '.'.join(a + b for a, b in zip(*[iter(num)]*2))
+    slash =""
+    if(len(num)!=0):
+        slash="/"
+
     content = '''
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Signature</title>
-    </head>
-    <body>
-        <h3 style="color:blue;font-size: medium;">{surname} {name}</h3>
-        <p style="color:cyan;">{job}</p>
-        <a href="mailto:{email}">{email}</a>
-    </body>
-</html>
+<table style="padding: 0; margin: 0; border-collapse: collapse; min-width: 550px; font-size: 14px; font-family: Arial;">
+    <tr>
+        <td style="padding:10px;">
+            <a href="https://apdiffusion.com"><img src="https://apdiffusion.com/wp-content/uploads/2019/03/logo.png"
+                    alt="AP Diffusion" width="150" style="border:0px;"></a>
+        </td>
+        <td
+            style="padding:10px 30px 10px 20px; vertical-align: middle; line-height: 1em; border-left: 1px solid lightgrey;">
+            <p style="padding: 0; margin: 0; font-size: 18px; margin-bottom: 10px; line-height:1em;">
+                <strong>{surname} {name}</strong></br>
+                <span style="padding: 0; margin: 0; padding-top: 2px; font-size: 16px; ">
+                    <i>{job}</i>
+                </span>
+            </p>
+            <p style="padding: 0; margin: 0; color: #333333; text-decoration: underline;"><a
+                    href="mailto:{email}"
+                    style="color: #333333; border: 0; font-size: 14px;">{email}</a></p>
+            <p style="padding: 0; margin: 0; color: #000; padding-top: 6px;">20 Bis Rue Strauss, </br>La Filature 70250
+                RONCHAMP</p>
+            <p style="padding: 0; margin: 0; padding-top: 6px;"><a
+                    style="color: #000!important; text-decoration: none!important; border: 0;"
+                    href="tel:0384207070">03.84.20.70.70</a> {slash} <a
+                    style="color: #000!important; text-decoration: none!important; border: 0;"
+                    href="tel:{tel}">{num}</a></p>
+            <p style="padding: 0; margin: 0; color: #000; padding-top: 6px;"><a href="https://apdiffusion.com"
+                    style="color:#333333 !important; text-decoration:underline!important;"><strong>https://apdiffusion.com/</strong></a>
+            </p>
+            <p style="padding: 0; margin: 0; color: #000; padding-top: 6px;"><a
+                    href="https://www.facebook.com/apdiffusion1/"
+                    style="color:#3B5998; text-decoration: underline;"><strong>Facebook</strong></a></p>
+        </td>
+        <td style="padding:10px; border-left: 1px solid lightgrey;">
+            <a href="https://www.portail-cetal.fr/nos-portails/">
+                <img src="https://www.portail-cetal.fr/wp-content/uploads/2021/11/Expert_CETAL_Professionnel_RVB.jpg"
+                    alt="PROFESSIONNEL EXPERT CETAL" width="150" style="border:0px;">
+            </a>
+            </br>
+            <a href="https://oknoplast.fr/fenetres/">
+                <img src="https://www.rhone-alpes-stores.com/img/partners/oknoplast.png"
+                    alt="PROFESSIONNEL EXPERT CETAL" width="150" style="border:0px;padding-top:10px;">
+            </a>
+        </td>
+    </tr>
+</table>
     '''
     html_content = content.format(**locals())
     bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
@@ -26,8 +72,8 @@ def generate_html(surname, name, job, email):
     outfile.close()
 
 
-def preview(surname, name, job, email):
-    generate_html(surname, name, job, email)
+def preview(surname:str, name:str, job:str, email:str, tel:str):
+    generate_html(surname, name, job, email, tel)
     bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
     path_to_signature = os.path.abspath(os.path.join(bundle_dir,'.ts_signature.html'))
     path_to_signature = "file://" + path_to_signature
@@ -35,14 +81,24 @@ def preview(surname, name, job, email):
     
 
 
-def show_code(surname, name, job, email):
-    generate_html(surname, name, job, email)
+def show_code(surname:str, name:str, job:str, email:str, tel:str):
+    generate_html(surname, name, job, email, tel)
     window = Tk()
-    window.title('TinoSign - Code')
-    window.configure(background='white')
+    window.title('APsign - Code')
     window.geometry("600x400")
     window.resizable(0,0)
 
+    # Création du menu    
+    menubar = Menu(window)
+    menuhelp = Menu(menubar,tearoff=0)
+    menubar.add_cascade(label='Aide',menu=menuhelp)
+    menuhelp.add_command(label="Ajouter à Gmail", command=google_help)
+    menuhelp.add_command(label="Ajouter à Outlook", command=outlook_help)
+    menuhelp.add_command(label="Ajouter à Yahoo !", command=yahoo_help)
+    window.config(menu=menubar)
+
+    #Lecture et ajout du code
+    data=""
     bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
     path_to_signature = os.path.abspath(os.path.join(bundle_dir,'.ts_signature.html'))
     with open(path_to_signature, "r") as outfile:
@@ -51,7 +107,6 @@ def show_code(surname, name, job, email):
     outfile.close()
     result = Text(window,width=101,height=101)
     result.insert(0.0,data)
-    result.config(state=DISABLED)
     result.pack()
     window.mainloop()
 
