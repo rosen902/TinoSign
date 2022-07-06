@@ -19,6 +19,13 @@ def generate_html(surname:str, name:str, job:str, email:str, tel:str):
         slash="/"
 
     content = '''
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Aperçu Signature</title>
+</head>
+<body>
 <table style="padding: 0; margin: 0; border-collapse: collapse; min-width: 550px; font-size: 14px; font-family: Arial;">
     <tr>
         <td style="padding:10px;">
@@ -58,11 +65,13 @@ def generate_html(surname:str, name:str, job:str, email:str, tel:str):
             </br>
             <a href="https://oknoplast.fr/fenetres/">
                 <img src="https://www.rhone-alpes-stores.com/img/partners/oknoplast.png"
-                    alt="PROFESSIONNEL EXPERT CETAL" width="150" style="border:0px;padding-top:10px;">
+                    alt="Oknoplast Partenaire Premium" width="150" style="border:0px;padding-top:10px;">
             </a>
         </td>
     </tr>
 </table>
+</body>
+</html>
     '''
     html_content = content.format(**locals())
     bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
